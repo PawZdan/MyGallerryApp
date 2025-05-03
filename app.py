@@ -23,8 +23,8 @@ QDRANT_COLLECTION_NAME = "images_embs"
 ############# * v4 - wyszukiwanie zdjęć na podstawie opisu. Dopisz teraz zapisywanie obrazkow do folderu,
 # ############### i kasowanie przy ponownym uruchomieniu aplikacji dodaj pawle to co wyswietlasz do session state
 #############
-env = dotenv_values(".env")
-openai_client = OpenAI(api_key=env["OPENAI_API_KEY"])
+#env = dotenv_values(".env")
+openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
 save_dir = "saved_images"
 os.makedirs(save_dir, exist_ok=True)
@@ -35,8 +35,8 @@ os.makedirs(save_dir, exist_ok=True)
 @st.cache_resource
 def get_qdrant_client():
     return QdrantClient(
-    url=env["QDRANT_URL"], 
-    api_key=env["QDRANT_API_KEY"],
+    url=st.secrets["qdrant"]["url"],
+    api_key=st.secrets["qdrant"]["api_key"]
 )
 
 def assure_db_collection_exists():
