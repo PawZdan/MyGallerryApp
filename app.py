@@ -24,7 +24,7 @@ QDRANT_COLLECTION_NAME = "images_embs"
 # ############### i kasowanie przy ponownym uruchomieniu aplikacji dodaj pawle to co wyswietlasz do session state
 #############
 #env = dotenv_values(".env")
-openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 save_dir = "saved_images"
 os.makedirs(save_dir, exist_ok=True)
@@ -35,8 +35,8 @@ os.makedirs(save_dir, exist_ok=True)
 @st.cache_resource
 def get_qdrant_client():
     return QdrantClient(
-    url=st.secrets["qdrant"]["url"],
-    api_key=st.secrets["qdrant"]["api_key"]
+    url=st.secrets["QDRANT_URL"],
+    api_key=st.secrets["QDRANT_API_KEY"]
 )
 
 def assure_db_collection_exists():
