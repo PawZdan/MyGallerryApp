@@ -148,6 +148,33 @@ def calculate_embedding(text: str):
     )
     return result.data[0].embedding
 
+def run_search():
+    query = st.session_state["search_query_input"]
+    st.session_state["search_query_input"] = ""  # wyczyść pole
+    all_notes = get_all_notes_from_db()
+    matching_ids = find_relevant_ids_with_openai(query, all_notes)
+
+    for note in all_notes:
+        if note["id"] in matching_ids:
+            with st.container():
+                user_path = os.path.join(save_dir, f"{note['id']}.png")
+                if os.path.exists(user_path):
+                    st.image(user_path, caption=f"Użytkownik {note['id']}", use_container_width=True)
+                else:
+                    found = False
+                    for ext in (".png", ".jpg", ".jpeg"):
+                        stock_path = os.path.join("stock_photo", f"{note['id']}{ext}")
+                        if os.path.exists(stock_path):
+                            st.image(stock_path, caption=f"Stock {note['id']}", use_container_width=True)
+                            found = True
+                            break
+                    if not found:
+                        st.warning(f"Brak pliku dla ID {note['id']}")
+                with st.expander("📖 Description"):
+                    st.markdown(note["text"])
+        else:
+            st.write("We didn’t find anything.")
+
 ################### Session state initialization  ########################
 ##if "note_image_md5" not in st.session_state:
 #    st.session_state["note_image_md5"] = None
@@ -192,6 +219,8 @@ if not st.session_state["splash_shown"]:
         time.sleep(2)  # czas trwania splash screena
         st.session_state["splash_shown"] = True
         st.rerun()
+if "search_query_input" not in st.session_state:
+    st.session_state["search_query_input"] = ""
 
 assure_db_collection_exists()
 gallery_tab, add_tab, search_tab, reset_tab  = st.tabs(["Gallery","Add photo", "Search", "Reset"])
@@ -217,38 +246,9 @@ with add_tab:
 
 
 with search_tab:
-    query = st.text_input("Search", key="search_query_input")
+    st.text_input("Search", key="search_query_input")  # tylko zapisuje input
     if st.button("Search", key="search_button"):
-        query = st.session_state["search_query_input"]
-        st.session_state["search_query_input"] = ""
-        all_notes    = get_all_notes_from_db()
-        matching_ids = find_relevant_ids_with_openai(query, all_notes)
-
-        for note in all_notes:
-            if note["id"] in matching_ids:
-                with st.container():
-                    # 1) najpierw spróbuj z folderu użytkownika
-                    user_path = os.path.join(save_dir, f"{note['id']}.png")
-                    if os.path.exists(user_path):
-                        st.image(user_path, caption=f"Użytkownik {note['id']}", use_container_width=True)
-                    else:
-                        # 2) jeżeli nie w save_dir, to szukaj w stock_photo
-                        # może być różne rozszerzenie – przeszukujemy
-                        found = False
-                        for ext in (".png",".jpg",".jpeg"):
-                            stock_path = os.path.join("stock_photo", f"{note['id']}{ext}")
-                            if os.path.exists(stock_path):
-                                st.image(stock_path, caption=f"Stock {note['id']}", use_container_width=True)
-                                found = True
-                                break
-                        if not found:
-                            st.warning(f"Brak pliku dla ID {note['id']}")
-
-                    # wyświetlamy opis
-                    with st.expander("📖 Description"):
-                        st.markdown(note["text"])
-            else:
-                st.write("We didnt find anything")
+        run_search()
 
 with gallery_tab:
     #st.header("🖼️ Gallery")
