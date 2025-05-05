@@ -217,12 +217,10 @@ with add_tab:
 
 
 with search_tab:
-    query = st.text_input(
-    "Search",
-    value=st.session_state.get("search_query", ""),
-    key="search_query_input")
-    st.session_state["search_query"] = query
+    query = st.text_input("Search", key="search_query_input")
     if st.button("Search", key="search_button"):
+        query = st.session_state["search_query_input"]
+        st.session_state["search_query_input"] = ""
         all_notes    = get_all_notes_from_db()
         matching_ids = find_relevant_ids_with_openai(query, all_notes)
 
@@ -249,6 +247,8 @@ with search_tab:
                     # wyświetlamy opis
                     with st.expander("📖 Description"):
                         st.markdown(note["text"])
+            else:
+                st.write("We didnt find anything")
 
 with gallery_tab:
     #st.header("🖼️ Gallery")
