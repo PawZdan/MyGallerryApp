@@ -39,7 +39,7 @@ def get_qdrant_client():
     api_key=st.secrets["QDRANT_API_KEY"]
 )
 
-ddef assure_db_collection_exists():
+def assure_db_collection_exists():
     qdrant_client = get_qdrant_client()
     if not qdrant_client.collection_exists(QDRANT_COLLECTION_NAME):
         qdrant_client.create_collection(
