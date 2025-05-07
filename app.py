@@ -197,7 +197,6 @@ if not st.session_state["splash_shown"]:
         st.session_state["splash_shown"] = True
         st.rerun()
 
-st.write(st.session_state)
 
 
 assure_db_collection_exists()
