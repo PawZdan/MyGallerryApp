@@ -1,7 +1,7 @@
 import streamlit as st
 from io import BytesIO
 from openai import OpenAI
-from dotenv import dotenv_values
+from dotenv import dotenv_values, load_dotenv
 from PIL import Image
 import os
 import base64
@@ -24,19 +24,19 @@ QDRANT_COLLECTION_NAME = "images_embs"
 # ############### i kasowanie przy ponownym uruchomieniu aplikacji dodaj pawle to co wyswietlasz do session state
 #############
 #env = dotenv_values(".env")
-openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 save_dir = "saved_images"
 os.makedirs(save_dir, exist_ok=True)
 
-
+load_dotenv()
 
 
 @st.cache_resource
 def get_qdrant_client():
     return QdrantClient(
-    url=st.secrets["QDRANT_URL"],
-    api_key=st.secrets["QDRANT_API_KEY"]
+    url=os.environ["QDRANT_URL"],
+    api_key=os.environ["QDRANT_API_KEY"]
 )
 
 def assure_db_collection_exists():
