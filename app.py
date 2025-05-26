@@ -263,32 +263,35 @@ elif tab == "Add photo":
 
 elif tab == "Search":
     # ========== SEARCH ==========
-    query = st.text_input(
-        "Search",
-        value=st.session_state.get("search_query", ""),
-        key="search_query_input")
-    st.session_state["search_query"] = query
-    if st.button("Search", key="search_button"):
-        all_notes    = get_all_notes_from_db()
-        matching_ids = find_relevant_ids_with_openai(query, all_notes)
-        if not matching_ids:
-            st.info("❌ Brak wyników wyszukiwania.")
-        for note in all_notes:
-            if note["id"] in matching_ids:
-                found = False
-                with st.container():
-                    user_path = os.path.join(save_dir, f"{note['id']}.png")
-                    if os.path.exists(user_path):
-                        st.image(user_path, caption=f"Użytkownik {note['id']}", use_container_width=True)
-                    else:
-                        for ext in (".png", ".jpg", ".jpeg"):
-                            stock_path = os.path.join("stock_photo", f"{note['id']}{ext}")
-                            if os.path.exists(stock_path):
-                                st.image(stock_path, caption=f"Stock {note['id']}", use_container_width=True)
-                                found = True
-                                break
-                    with st.expander("📖 Description"):
-                        st.markdown(note["text"])
+    with st.form(key="search_form"):
+        query = st.text_input(
+            "Search",
+            value=st.session_state.get("search_query", ""),
+            key="search_query_input")
+        submitted = st.form_submit_button("Search")
+    if submitted:
+        st.session_state["search_query"] = query
+        if st.button("Search", key="search_button"):
+            all_notes    = get_all_notes_from_db()
+            matching_ids = find_relevant_ids_with_openai(query, all_notes)
+            if not matching_ids:
+                st.info("❌ Brak wyników wyszukiwania.")
+            for note in all_notes:
+                if note["id"] in matching_ids:
+                    found = False
+                    with st.container():
+                        user_path = os.path.join(save_dir, f"{note['id']}.png")
+                        if os.path.exists(user_path):
+                            st.image(user_path, caption=f"Użytkownik {note['id']}", use_container_width=True)
+                        else:
+                            for ext in (".png", ".jpg", ".jpeg"):
+                                stock_path = os.path.join("stock_photo", f"{note['id']}{ext}")
+                                if os.path.exists(stock_path):
+                                    st.image(stock_path, caption=f"Stock {note['id']}", use_container_width=True)
+                                    found = True
+                                    break
+                        with st.expander("📖 Description"):
+                            st.markdown(note["text"])
 
 elif tab == "Reset":
     # ========== RESET ==========
