@@ -267,15 +267,18 @@ elif tab == "Search":
         query = st.text_input(
             "Search",
             value=st.session_state.get("search_query", ""),
-            key="search_query_input")
+            key="search_query_input"
+        )
         submitted = st.form_submit_button("Search")
+
     if submitted:
         st.session_state["search_query"] = query
-        if st.button("Search", key="search_button"):
-            all_notes    = get_all_notes_from_db()
-            matching_ids = find_relevant_ids_with_openai(query, all_notes)
-            if not matching_ids:
-                st.info("❌ Brak wyników wyszukiwania.")
+        all_notes = get_all_notes_from_db()
+        matching_ids = find_relevant_ids_with_openai(query, all_notes)
+
+        if not matching_ids:
+            st.info("❌ Brak wyników wyszukiwania.")
+        else:
             for note in all_notes:
                 if note["id"] in matching_ids:
                     found = False
@@ -292,7 +295,6 @@ elif tab == "Search":
                                     break
                         with st.expander("📖 Description"):
                             st.markdown(note["text"])
-
 elif tab == "Reset":
     # ========== RESET ==========
     if st.button("🔄 Restart MyGallery App"):
